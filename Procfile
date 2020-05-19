@@ -1,0 +1,1 @@
+web: gunicorn web/server/flask_rest_service:app
