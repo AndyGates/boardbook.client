@@ -35,7 +35,7 @@ export default {
   },
   methods: {
     getProblems() {
-      const path = 'http://192.168.1.104:5000/problems';
+      const path = `${process.env.VUE_APP_ROOT_API}/problems`;
       axios.get(path)
         .then((res) => {
           this.problems = res.data.problems;
@@ -52,6 +52,7 @@ export default {
   },
   created() {
     this.getProblems();
+    console.log(process.env.VUE_APP_ROOT_API);
   },
 };
 </script>

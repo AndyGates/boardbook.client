@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     getBoard() {
-      const path = 'http://192.168.1.104:5000/board';
+      const path = `${process.env.VUE_APP_ROOT_API}/board`;
       axios.get(path)
         .then((res) => {
           this.onBoardReceived(res.data.board);
