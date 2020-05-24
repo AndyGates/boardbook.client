@@ -10,16 +10,33 @@
       </v-layer>
 
       <v-layer>
-        <v-ring v-for="(hold, index) in problemHolds"
+        <v-shape v-for="(hold, index) in problemHolds"
           :key="index"
           :config="{
-            x: hold.x * stageSize.width,
-            y: hold.y * stageSize.height,
-            innerRadius: hold.size,
-            outerRadius: hold.size + 4,
-            fill: 'red'
-          }"
-        />
+          sceneFunc: function(context, shape) {
+            context.beginPath();
+
+            fixedPath = hold.path.map(x => x.map(y => Math.floor(y * stageSize.width)));
+
+            console.log(`STARTING SHAPE`);
+            console.log(fixedPath[0])
+
+            context.moveTo(fixedPath[0][0], fixedPath[0][1]);
+
+            fixedPath.forEach(function(p) {
+              console.log(p);
+              context.lineTo(p[0], p[1]);
+            })
+
+            context.closePath();
+
+            // special Konva.js method
+            context.strokeShape(shape);
+          },
+          fill: '#00D2FF',
+          stroke: 'red',
+          strokeWidth: 4
+        }"/>
       </v-layer>
     </v-stage>
   </b-container>
