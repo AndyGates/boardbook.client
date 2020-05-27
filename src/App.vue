@@ -1,11 +1,10 @@
 <template>
-  <div id="app">
-    <h1 class="title"> BOARD BOOK </h1>
-    <div id="nav">
-      <router-link to="/">Home</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <b-container id="app">
+      <h1 class="title p-3 m-0"> BOARD BOOK </h1>
+    <b-row>
+      <router-view/>
+    </b-row>
+  </b-container>
 </template>
 
 <style>
@@ -15,10 +14,14 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2D2D2D;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
 }
 
 #nav {
-  padding: 30px;
+  padding: 0px;
 }
 
 #nav a {
@@ -32,6 +35,7 @@
 .title {
   font-size: 100px;
   font-weight: bold;
+  text-align: center;
+  width: 100%;
 }
-
 </style>

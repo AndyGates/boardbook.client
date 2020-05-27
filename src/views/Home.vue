@@ -1,11 +1,13 @@
 <template>
-  <b-container fluid>
+  <b-container fluid class="homecontainer">
     <b-row>
-      <b-col sm="8">
-        <Board :problem="selectedProblem" />
+      <b-col sm="8" class="p-3">
+        <Board :problem="selectedProblem" :editMode="editMode"/>
       </b-col>
       <b-col sm="4">
-        <Problems v-on:problemSelected="onProblemSelected"/>
+        <Problems
+          v-on:problemSelected="onProblemSelected"
+          @editMode="onEditMode" />
       </b-col>
     </b-row>
   </b-container>
@@ -26,11 +28,26 @@ export default {
     onProblemSelected(problem) {
       this.selectedProblem = problem;
     },
+    onEditMode(isEdit) {
+      this.editMode = isEdit;
+    },
   },
   data() {
     return {
       selectedProblem: null,
+      editMode: false,
     };
   },
 };
 </script>
+
+<style>
+  .homecontainer {
+    display : flex;
+    flex-direction: column;
+  }
+
+  .row {
+    flex-grow: 1;
+  }
+</style>

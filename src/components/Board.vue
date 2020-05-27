@@ -1,8 +1,8 @@
 <!-- src/components/Problems.vue -->
 
 <template>
-  <b-container ref="container" fluid>
-    <v-stage ref="stage" :config="stageSize">
+  <b-container ref="container" class="boardcontainer p-0" fluid>
+    <v-stage ref="stage" :config="stageSize" v-if="board">
       <v-layer>
         <v-image :config="{
           image: image,
@@ -10,33 +10,33 @@
       </v-layer>
 
       <v-layer>
-        <v-shape v-for="(hold, index) in problemHolds"
+        <v-shape v-for="(hold, index) in board.holds"
+          @click="onHoldSelected(index)"
           :key="index"
           :config="{
           sceneFunc: function(context, shape) {
             context.beginPath();
 
+            console.log('hold');
+            console.log(board.holds);
+
             fixedPath = hold.path.map(x => x.map(y => Math.floor(y * stageSize.width)));
-
-            console.log(`STARTING SHAPE`);
-            console.log(fixedPath[0])
-
             context.moveTo(fixedPath[0][0], fixedPath[0][1]);
 
             fixedPath.forEach(function(p) {
-              console.log(p);
               context.lineTo(p[0], p[1]);
             })
 
             context.closePath();
 
             // special Konva.js method
-            context.strokeShape(shape);
+            context.fillStrokeShape(shape);
           },
-          fill: '#00D2FF',
-          stroke: 'red',
-          strokeWidth: 4
-        }"/>
+          fill: '#00000000',
+          stroke: problem && problem.holds && problem.holds.includes(index) ? 'red' : '#00000000',
+          strokeWidth: 0.005 * stageSize.width,
+          }
+        "/>
       </v-layer>
     </v-stage>
   </b-container>
@@ -48,6 +48,7 @@ import axios from 'axios';
 export default {
   props: {
     problem: Object,
+    editMode: Boolean,
   },
   data() {
     return {
@@ -81,11 +82,27 @@ export default {
         return;
       }
 
-      // Calculate new size from container with and aspect
-      const newWidth = container.offsetWidth;
-      const newHeight = container.offsetWidth * this.imgAspect;
+      const compStyle = getComputedStyle(container);
+      const w = container.clientWidth
+            - (parseFloat(compStyle.paddingLeft) + parseFloat(compStyle.paddingRight));
+      const h = container.clientHeight
+            - (parseFloat(compStyle.paddingTop) + parseFloat(compStyle.paddingBottom));
 
-      this.console.log(`${newWidth}x${newHeight}`);
+      // this.console.log(`Resizing. Container ${w}x${h}`);
+
+      let newWidth = w;
+      let newHeight = newWidth * this.imgAspect;
+
+      // this.console.log(`New: ${newWidth}x${newHeight}`);
+
+      if (newHeight > h) {
+        this.console.log('Too high');
+
+        newHeight = h;
+        newWidth = newHeight * (1.0 / this.imgAspect);
+      }
+
+      // this.console.log(`${newWidth}x${newHeight}`);
 
       if (this.image) {
         this.image.width = newWidth;
@@ -95,10 +112,13 @@ export default {
       this.stageSize.width = newWidth;
       this.stageSize.height = newHeight;
 
-      this.console.log(`Resized stage to ${this.stageSize.width}x${this.stageSize.height}`);
+      // this.console.log(`Resized stage to ${this.stageSize.width}x${this.stageSize.height}`);
     },
     onBoardReceived(board) {
       this.board = board;
+      this.board.holds = JSON.parse(board.holds);
+
+      this.console.log(board);
       const image = new window.Image();
       image.src = `/images/${board.image}`;
       image.onload = () => {
@@ -108,6 +128,20 @@ export default {
         this.resizeToContainer();
       };
     },
+    onEdit() {
+      this.console.log('Board component edit mode');
+    },
+    onHoldSelected(boardHoldIndex) {
+      if (this.editMode && this.problem) {
+        const problemHoldIndex = this.problem.holds.indexOf(boardHoldIndex);
+        if (problemHoldIndex >= 0) {
+          this.problem.holds.splice(problemHoldIndex, 1);
+        } else {
+          this.problem.holds.push(boardHoldIndex);
+        }
+      }
+    },
+
   },
   created() {
     this.imgAspect = 1;
@@ -117,6 +151,14 @@ export default {
   },
   mounted() {
     this.resizeToContainer();
+  },
+  watch: {
+    editMode(newVal, oldVal) {
+      this.console.log(`EDIT MODE ${oldVal} -> ${newVal}`);
+      if (newVal) {
+        this.onEdit();
+      }
+    },
   },
   computed: {
     console: () => console,
@@ -136,3 +178,9 @@ export default {
   },
 };
 </script>
+
+<style>
+  .boardcontainer {
+    height:100%;
+  }
+</style>
