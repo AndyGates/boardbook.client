@@ -1,9 +1,7 @@
 <!-- src/components/Problems.vue -->
 
 <template>
-    <b-container>
-        <h1>Problems</h1>
-        <br>
+    <b-container class = "p-0">
         <table class="table table-hover">
             <tr>
                 <th scope="col">Name</th>
@@ -163,6 +161,14 @@ export default {
 </script>
 
 <style>
+  .title {
+    text-align: center;
+  }
+
+  .container
+  {
+  }
+
   .active {
     background: #f00;
   }

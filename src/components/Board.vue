@@ -2,7 +2,7 @@
 
 <template>
   <b-container ref="container" class="boardcontainer p-0" fluid>
-    <v-stage ref="stage" :config="stageSize" v-if="board">
+    <v-stage ref="stage" :config="stageSize" v-if="board" class="canvas">
       <v-layer>
         <v-image :config="{
           image: image,
@@ -17,9 +17,6 @@
           sceneFunc: function(context, shape) {
             context.beginPath();
 
-            console.log('hold');
-            console.log(board.holds);
-
             fixedPath = hold.path.map(x => x.map(y => Math.floor(y * stageSize.width)));
             context.moveTo(fixedPath[0][0], fixedPath[0][1]);
 
@@ -28,8 +25,6 @@
             })
 
             context.closePath();
-
-            // special Konva.js method
             context.fillStrokeShape(shape);
           },
           fill: '#00000000',
@@ -172,7 +167,6 @@ export default {
         holdData = holdIndices.map((x) => this.board.holds[x]);
       }
 
-      this.console.log(`Computed holds: ${holdData}`);
       return holdData;
     },
   },
@@ -182,5 +176,9 @@ export default {
 <style>
   .boardcontainer {
     height:100%;
+  }
+
+  .canvas {
+    margin: 0 auto;
   }
 </style>
