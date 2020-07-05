@@ -27,7 +27,7 @@
         <p/>
         <b-form v-if="editMode" @submit.prevent="submitProblem">
           <div class="form-group form-inline">
-            <b-form-input label="Name" type="text" :value="nameInput"
+            <b-form-input label="Name" type="text" v-model="nameInput"
               class="form-control mx-sm-2" id="inputName" placeholder="Enter Name"/>
             <div class="btn btn-secondary" @click='randomName'>R</div>
           </div>
@@ -38,6 +38,7 @@
               id="inputGrade"
               label="Grade">
               <option disabled value="">Select a grade</option>
+              <option>?</option>
               <option>4</option>
               <option>5</option>
               <option>6A</option>
@@ -96,6 +97,8 @@ export default {
       const prob = this.activeProblem;
       prob.name = this.nameInput;
       prob.grade = this.gradeInput;
+
+      this.nameInput = '';
 
       const path = `${process.env.VUE_APP_ROOT_API}/problems`;
 
