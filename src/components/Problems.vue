@@ -17,12 +17,17 @@
             </tr>
             </tbody>
         </table>
-        <button v-if="!editMode" type="button" class="btn btn-success btn-sm"
+        <button v-if="!editMode" type="button" class="btn my-sm-2 btn-success btn-sm"
           v-on:click="addProblem">
           Add Problem
         </button>
-        <button v-if="editMode" type="button" class="btn btn-danger btn-sm" v-on:click="cancelAdd">
-          Cancel
+        <button v-if="activeIndex !== -1" type="button" class="btn my-sm-2 btn-warning btn-sm"
+          v-on:click="editProblem">
+          Edit Problem
+        </button>
+        <button v-if="activeIndex !== -1" type="button" class="btn my-sm-2 btn-danger btn-sm"
+          v-on:click="deleteProblem">
+          Delete Problem
         </button>
         <p/>
         <b-form v-if="editMode" @submit.prevent="submitProblem">
@@ -56,7 +61,8 @@
               <option>8A</option>
             </b-form-select>
           </div>
-          <button class="btn btn-primary">Submit</button>
+          <button class="btn my-sm-2 btn-primary">Submit</button>
+          <button class="btn btn-danger btn-sm" v-on:click="cancelAdd">Cancel</button>
         </b-form>
     </b-container>
 </template>
@@ -119,6 +125,28 @@ export default {
       this.activeProblem = problem;
       this.$emit('problemSelected', problem);
     },
+    deleteProblem() {
+      this.console.log('Deleting');
+      this.console.log(this.activeProblem);
+
+      const probId = this.activeProblem.id;
+
+      const path = `${process.env.VUE_APP_ROOT_API}/problems`;
+
+      axios.delete(path, { data: { id: probId } })
+        .then(() => {
+          this.console.log('Successfully called delete');
+          this.getProblems();
+        })
+        .catch((error) => {
+          this.console.log(error);
+          this.console.log('Failed to call delete');
+          this.getProblems();
+        })
+        .finally(() => {
+          this.selectItem(this.problems.length - 1);
+        });
+    },
     setEditMode(mode) {
       this.editMode = mode;
       this.$emit('editMode', mode);
@@ -137,6 +165,10 @@ export default {
         grade: '4',
         holds: [],
       });
+      this.setEditMode(true);
+      this.selectItem(-1);
+    },
+    editProblem() {
       this.setEditMode(true);
       this.selectItem(-1);
     },
