@@ -6,6 +6,7 @@
             <tr>
                 <th scope="col">Name</th>
                 <th scope="col">Grade</th>
+                <th scope="col">Notes</th>
             </tr>
             <tbody>
             <tr v-for="(problem, index) in problems"
@@ -14,56 +15,61 @@
               @click="selectItem(index)">
                 <td>{{ problem.name }}</td>
                 <td>{{ problem.grade }}</td>
+                <td>{{ problem.notes }}</td>
             </tr>
             </tbody>
         </table>
-        <button v-if="!editMode" type="button" class="btn my-sm-2 btn-success btn-sm"
-          v-on:click="addProblem">
-          Add Problem
-        </button>
-        <button v-if="activeIndex !== -1" type="button" class="btn my-sm-2 btn-warning btn-sm"
-          v-on:click="editProblem">
-          Edit Problem
-        </button>
-        <button v-if="activeIndex !== -1" type="button" class="btn my-sm-2 btn-danger btn-sm"
-          v-on:click="deleteProblem">
-          Delete Problem
-        </button>
-        <p/>
-        <b-form v-if="editMode" @submit.prevent="submitProblem">
-          <div class="form-group form-inline">
-            <b-form-input label="Name" type="text" v-model="nameInput"
-              class="form-control mx-sm-2" id="inputName" placeholder="Enter Name"/>
-            <div class="btn btn-secondary" @click='randomName'>R</div>
-          </div>
-          <div class="form-group form-inline">
-            <b-form-select
-              class="form-control mx-sm-2"
-              v-model="gradeInput"
-              id="inputGrade"
-              label="Grade">
-              <option disabled value="">Select a grade</option>
-              <option>?</option>
-              <option>4</option>
-              <option>5</option>
-              <option>6A</option>
-              <option>6A+</option>
-              <option>6B</option>
-              <option>6B+</option>
-              <option>6C</option>
-              <option>6C+</option>
-              <option>7A</option>
-              <option>7A+</option>
-              <option>7B</option>
-              <option>7B+</option>
-              <option>7C</option>
-              <option>7C+</option>
-              <option>8A</option>
-            </b-form-select>
-          </div>
-          <button class="btn my-sm-2 btn-primary">Submit</button>
+        <div v-if="!editMode">
+          <button type="button" class="btn my-sm-2 btn-success btn-sm"
+            v-on:click="addProblem">
+            Add Problem
+          </button>
+          <button v-if="activeIndex !== -1" type="button" class="btn my-sm-2 btn-warning btn-sm"
+            v-on:click="editProblem">
+            Edit Problem
+          </button>
+        </div>
+        <div v-if="editMode">
+          <b-form @submit.prevent="submitProblem">
+            <div class="form-group form-inline">
+              <b-form-input label="Name" type="text" v-model="nameInput"
+                class="form-control mx-sm-2 my-sm-3" id="inputName" placeholder="Enter Name"/>
+              <div class="btn btn-secondary" @click='randomName'>R</div>
+              <b-form-input  style="width: 450px;" label="Notes" type="text" v-model="notesInput"
+                class="form-control mx-sm-2" id="inputNotes" placeholder="Notes"/>
+            </div>
+            <div class="form-group form-inline">
+              <b-form-select
+                class="form-control mx-sm-2"
+                v-model="gradeInput"
+                id="inputGrade"
+                label="Grade">
+                <option disabled value="">Select a grade</option>
+                <option>?</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6A</option>
+                <option>6A+</option>
+                <option>6B</option>
+                <option>6B+</option>
+                <option>6C</option>
+                <option>6C+</option>
+                <option>7A</option>
+                <option>7A+</option>
+                <option>7B</option>
+                <option>7B+</option>
+                <option>7C</option>
+                <option>7C+</option>
+                <option>8A</option>
+              </b-form-select>
+            </div>
+            <button class="btn my-sm-2 btn-primary">Submit</button>
+          <p/>
+          </b-form>
+          <button v-if="activeIndex !== -1" class="btn my-sm-2 btn-danger btn-sm"
+          v-on:click="deleteProblem">Delete Problem</button>
           <button class="btn btn-danger btn-sm" v-on:click="cancelAdd">Cancel</button>
-        </b-form>
+        </div>
     </b-container>
 </template>
 
@@ -80,6 +86,7 @@ export default {
       problems: [],
       activeIndex: -1,
       nameInput: '',
+      notesInput: '',
       gradeInput: '',
       activeProblem: null,
       editMode: false,
@@ -103,6 +110,7 @@ export default {
       const prob = this.activeProblem;
       prob.name = this.nameInput;
       prob.grade = this.gradeInput;
+      prob.notes = this.notesInput;
 
       this.nameInput = '';
 
@@ -117,13 +125,8 @@ export default {
           this.getProblems();
         })
         .finally(() => {
-          this.selectItem(this.problems.length - 1);
+          this.selectItem(-1);
         });
-    },
-    setProblem(problem) {
-      this.console.log(problem);
-      this.activeProblem = problem;
-      this.$emit('problemSelected', problem);
     },
     deleteProblem() {
       this.console.log('Deleting');
@@ -144,8 +147,13 @@ export default {
           this.getProblems();
         })
         .finally(() => {
-          this.selectItem(this.problems.length - 1);
+          this.selectItem(-1);
         });
+    },
+    setProblem(problem) {
+      this.console.log(problem);
+      this.activeProblem = problem;
+      this.$emit('problemSelected', problem);
     },
     setEditMode(mode) {
       this.editMode = mode;
@@ -155,22 +163,30 @@ export default {
       this.activeIndex = i;
       if (i >= 0) {
         this.setProblem(this.problems[i]);
-        this.setEditMode(false);
+      } else {
+        this.clearActiveProblem();
       }
+      this.setEditMode(false);
     },
-    addProblem() {
+    clearActiveProblem() {
       this.setProblem({
         id: -1,
         name: '',
         grade: '4',
+        notes: '',
         holds: [],
       });
-      this.setEditMode(true);
+    },
+    addProblem() {
+      this.clearActiveProblem();
       this.selectItem(-1);
+      this.setEditMode(true);
     },
     editProblem() {
       this.setEditMode(true);
-      this.selectItem(-1);
+      this.nameInput = this.activeProblem.name;
+      this.gradeInput = this.activeProblem.grade;
+      this.notesInput = this.activeProblem.notes;
     },
     randomName() {
       const name = randomwords(2).map((x) => x.charAt(0).toUpperCase() + x.slice(1)).join(' ');
